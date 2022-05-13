@@ -13,3 +13,4 @@ jobs:
         uses: x0f5c3/tag-action@main
         env:
           ACCESS_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+          ROOT_CMD: ./cmd/root.go
