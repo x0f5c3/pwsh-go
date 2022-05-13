@@ -44,7 +44,10 @@ func main() {
 		replaceAllInFile(path, cliTemplatePath, project.ProjectName)
 	})
 
-	replaceAllInFile("./cmd/root.go", `Use:   "cli-template",`, pterm.Sprintf(`Use:   "%s",`, project.Reponame))
+	walkOverExt("go", func(path string) {
+		pterm.Debug.Printfln("Replacing '%s' in %s with %s", pterm.Magenta("cli-template"), path, pterm.Magenta(project.ProjectName))
+		replaceAllInFile(path, `Use:   "cli-template",`, pterm.Sprintf(`Use:   "%s",`, project.Reponame))
+	})
 
 	pterm.Fatal.PrintOnError(os.Remove(getPathTo("./README.md")))
 	pterm.Fatal.PrintOnError(os.Rename(getPathTo("./README.template-setup.md"), getPathTo("./README.template.md")))
