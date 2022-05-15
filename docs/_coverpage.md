@@ -1,9 +1,8 @@
-# cli-template
+# pwsh-go
 
-> This cli template shows the date and time in the terminal
+> pwsh-go is a tool to update your powershell version automatically
 
-This is a template CLI application, which can be used as a boilerplate for awesome CLI tools written in Go.
-This template prints the date or time to the terminal.
+
 
 [Installation](installation.md)
 [Docs](docs.md)
