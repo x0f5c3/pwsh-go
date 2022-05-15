@@ -98,3 +98,5 @@ release:
   extra_files:
     #    - glob: ./dist/tl-dl_macos.dmg
     - glob: ./dist/pwsh-go-MacOS-Universal.zip
+    - glob: ./dist/pwsh-go-Linux*.tar.gz
+    - glob: ./dist/pwsh-go-Windows*.zip
