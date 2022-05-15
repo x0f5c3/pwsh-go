@@ -41,7 +41,7 @@ Compiling cli-template from source has the benefit that the build command is the
 It is not recommended to install Go only for the installation of cli-template.
 
 ```command
-go install github.com/pterm/cli-template@latest
+go install github.com/x0f5c3/pwsh-go@latest
 ```
 
 <!-- tabs:end -->

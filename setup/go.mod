@@ -1,4 +1,4 @@
-module github.com/pterm/cli-template/setup
+module github.com/x0f5c3/pwsh-go/setup
 
 go 1.18
 
