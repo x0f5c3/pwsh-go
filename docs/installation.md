@@ -1,7 +1,7 @@
-# Quick Start - Install cli-template
+# Quick Start - Install pwsh-go
 
 > [!TIP]
-> cli-template is installable via [instl.sh](https://instl.sh).\
+> pwsh-go is installable via [instl.sh](https://instl.sh).\
 > You just have to run the following command and you're ready to go!
 
 <!-- tabs:start -->
@@ -11,7 +11,7 @@
 ### Windows Command
 
 ```powershell
-iwr instl.sh/pterm/cli-template/windows | iex
+iwr instl.sh/x0f5c3/pwsh-go/windows | iex
 ```
 
 #### ** Linux **
@@ -19,7 +19,7 @@ iwr instl.sh/pterm/cli-template/windows | iex
 ### Linux Command
 
 ```bash
-curl -sSL instl.sh/pterm/cli-template/linux | bash
+curl -sSL instl.sh/x0f5c3/pwsh-go/linux | bash
 ```
 
 #### ** macOS **
@@ -27,7 +27,7 @@ curl -sSL instl.sh/pterm/cli-template/linux | bash
 ### macOS Command
 
 ```bash
-curl -sSL instl.sh/pterm/cli-template/macos | bash
+curl -sSL instl.sh/x0f5c3/pwsh-go/macos | bash
 ```
 
 #### ** Compile from source **
@@ -35,10 +35,10 @@ curl -sSL instl.sh/pterm/cli-template/macos | bash
 ### Compile from source with Golang
 
 ?> **NOTICE**
-To compile cli-template from source, you have to have [Go](https://golang.org/) installed.
+To compile pwsh-go from source, you have to have [Go](https://golang.org/) installed.
 
-Compiling cli-template from source has the benefit that the build command is the same on every platform.\
-It is not recommended to install Go only for the installation of cli-template.
+Compiling pwsh-go from source has the benefit that the build command is the same on every platform.\
+It is not recommended to install Go only for the installation of pwsh-go.
 
 ```command
 go install github.com/x0f5c3/pwsh-go@latest
