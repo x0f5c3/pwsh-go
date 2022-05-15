@@ -83,6 +83,9 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+    files:
+      - README.md
+      - LICENSE
   - id: macos-zip
     format: zip
     name_template: "{{ .ProjectName }}-{{ .Os }}-Universal"
@@ -91,6 +94,9 @@ archives:
     replacements:
       darwin: MacOS
       amd64: x86_64
+    files:
+      - README.md
+      - LICENSE
 
 release:
   ids:
