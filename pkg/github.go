@@ -1,18 +1,93 @@
 package pkg
 
 import (
+	"bufio"
+	"encoding/json"
 	"errors"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/coreos/go-semver/semver"
+	"github.com/pterm/pterm"
+	"github.com/x0f5c3/manic-go/pkg/downloader"
 	"strings"
 	"time"
 )
 
 type Releases = []Release
 
+func GetReleases() (Releases, error) {
+	resp, err := Get("https://api.github.com/repos/PowerShell/PowerShell/releases")
+	if err != nil {
+		return nil, err
+	}
+	var res Releases
+	err = json.Unmarshal(resp, &res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 type ParsedRelease struct {
 	Version *semver.Version
 	SHAFile *Asset
 	Native  *Asset
+}
+
+type Downloaded struct {
+	Version *semver.Version
+	SHASum  string
+	Data    []byte
+}
+
+func (p *ParsedRelease) Download() (*Downloaded, error) {
+	resp, err := Get(p.SHAFile.BrowserDownloadUrl)
+	if err != nil {
+		return nil, err
+	}
+	var SHASum string
+	scanner := bufio.NewScanner(strings.NewReader(string(resp)))
+	for scanner.Scan() {
+		t := scanner.Text()
+		if strings.Contains(t, FileExt) {
+			SHASum = strings.Split(t, " ")[0]
+		}
+	}
+	l := p.Native.Size
+	dl, err := downloader.New(p.Native.BrowserDownloadUrl, SHASum, HttpClient, &l)
+	if err != nil {
+		return nil, err
+	}
+	err = dl.Download(5, 5, true)
+	if err != nil {
+		return nil, err
+	}
+	return &Downloaded{
+		Version: p.Version,
+		SHASum:  SHASum,
+		Data:    *dl.Data,
+	}, nil
+}
+
+func AskForVersion(r Releases) (*Release, error) {
+	sel := survey.Select{VimMode: true}
+	var elems []string
+	relsMap := make(map[string]*Release)
+	for _, v := range r {
+		relsMap[v.TagName] = &v
+		elems = append(elems, v.TagName)
+	}
+	sel.Options = elems
+	sel.Message = "Select a version"
+	answer := 0
+	err := survey.AskOne(&sel, &answer)
+	if err != nil {
+		return nil, err
+	}
+	v := r[answer]
+	//if !ok {
+	//	return nil, errors.New("no release found in map")
+	//}
+	return &v, nil
 }
 
 func (r *Release) Parse() (*ParsedRelease, error) {
@@ -32,6 +107,8 @@ func (r *Release) Parse() (*ParsedRelease, error) {
 		return nil, errors.New("no native asset found")
 	}
 	if res.SHAFile == nil {
+		pterm.Error.Printf("Can't find hashes.sha256")
+		pterm.Debug.Printf("Data: %v\n", r.Assets)
 		return nil, errors.New("no hashes.sha256 found")
 	}
 	return &res, nil

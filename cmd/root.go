@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"crypto/sha256"
+	"github.com/x0f5c3/pwsh-go/pkg"
+	"io/ioutil"
 	"os"
 	"os/signal"
 
@@ -14,11 +17,38 @@ var rootCmd = &cobra.Command{
 	Short:   "pwsh-go is a tool to update your powershell version automatically",
 	Version: "v0.0.4", // <---VERSION---> Updating this version, will also create a new GitHub release.
 	// Uncomment the following lines if your bare application has an action associated with it:
-	// RunE: func(cmd *cobra.Command, args []string) error {
-	// 	// Your code here
-	//
-	// 	return nil
-	// },
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Your code here
+		rels, err := pkg.GetReleases()
+		if err != nil {
+			return err
+		}
+		rel, err := pkg.AskForVersion(rels)
+		if err != nil {
+			return err
+		}
+		parsed, err := rel.Parse()
+		if err != nil {
+			return err
+		}
+		dl, err := parsed.Download()
+		if err != nil {
+			return err
+		}
+		err = ioutil.WriteFile("test.tar.gz", dl.Data, 0777)
+		if err != nil {
+			return err
+		}
+		pterm.Info.Printf("SHA256: %s\n", dl.SHASum)
+		pterm.Info.Printf("Version: %s\n", dl.Version)
+		b, err := ioutil.ReadFile("test.tar.gz")
+		if err != nil {
+			return err
+		}
+		sum := sha256.Sum256(b)
+		pterm.Info.Printf("Computed SHA256: %x\n", sum)
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -54,7 +84,7 @@ func init() {
 	// Adds global flags for PTerm settings.
 	// Fill the empty strings with the shorthand variant (if you like to have one).
 	rootCmd.PersistentFlags().BoolVarP(&pterm.PrintDebugMessages, "debug", "", false, "enable debug messages")
-	rootCmd.PersistentFlags().BoolVarP(&pterm.RawOutput, "raw", "", false, "print unstyled raw output (set it if output is written to a file)")
+	//rootCmd.PersistentFlags().BoolVarP(&pterm.RawOutput, "raw", "", false, "print unstyled raw output (set it if output is written to a file)")
 	rootCmd.PersistentFlags().BoolVarP(&pcli.DisableUpdateChecking, "disable-update-checks", "", false, "disables update checks")
 
 	// Use https://github.com/pterm/pcli to style the output of cobra.
