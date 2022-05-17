@@ -186,4 +186,4 @@ Simply type pwsh-go help [path to command] for full details.
 
 
 ---
-> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on 15 May 2022**
+> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on 17 May 2022**

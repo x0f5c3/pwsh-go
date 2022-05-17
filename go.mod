@@ -3,6 +3,7 @@ module github.com/x0f5c3/pwsh-go
 go 1.18
 
 require (
+	github.com/coreos/go-semver v0.3.0
 	github.com/pterm/pcli v0.4.6
 	github.com/pterm/pterm v0.12.38
 	github.com/spf13/cobra v1.4.0
