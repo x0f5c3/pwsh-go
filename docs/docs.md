@@ -10,7 +10,6 @@ pwsh-go
 |----|-----|
 |`--debug`|enable debug messages|
 |`--disable-update-checks`|disables update checks|
-|`--raw`|print unstyled raw output (set it if output is written to a file)|
 
 ## Commands
 |Command|Usage|
