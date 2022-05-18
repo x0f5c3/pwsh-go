@@ -11,9 +11,11 @@ import (
 	"github.com/smira/go-xz"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 type MD5Sums = map[string]string
@@ -23,6 +25,80 @@ func indirect(reflectValue reflect.Value) reflect.Value {
 		reflectValue = reflectValue.Elem()
 	}
 	return reflectValue
+}
+
+type MessageType = int
+
+const (
+	Stdout MessageType = iota
+	Stderr
+)
+
+type Message struct {
+	typ MessageType
+	msg string
+}
+
+func Install(path string) error {
+	name := filepath.Base(path)
+	sp, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s", name))
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command("dpkg", "-i", path)
+	msgChan := make(chan Message)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	stderr, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stdout)
+		msgType := Stdout
+		for scanner.Scan() {
+			msg := Message{typ: msgType, msg: scanner.Text()}
+			msgChan <- msg
+		}
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stderr)
+		msgType := Stderr
+		for scanner.Scan() {
+			msg := Message{typ: msgType, msg: scanner.Text()}
+			msgChan <- msg
+		}
+	}()
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+	go func() {
+		pterm.Error.PrintOnError(cmd.Wait())
+		wg.Wait()
+		close(msgChan)
+	}()
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+	for v := range msgChan {
+		switch v.typ {
+		case Stdout:
+			sp.UpdateText(v.msg)
+		case Stderr:
+			pterm.Error.Println(v.msg)
+
+		}
+	}
+	return nil
 }
 
 func archiveLen(in io.Reader) (int, error) {
