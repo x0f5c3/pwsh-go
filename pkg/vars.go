@@ -36,6 +36,11 @@ var FileExt = func() string {
 		case "darwin":
 			return "osx", "pkg", nil
 		case "linux":
+			if OSType == Debian {
+				return "linux", "deb", nil
+			} else if OSType == RPM {
+				return "linux", "rpm", nil
+			}
 			return "linux", "tar.gz", nil
 		default:
 			return "", "", errors.New("unsupported os")
@@ -57,5 +62,10 @@ var FileExt = func() string {
 		}
 	}()
 	pterm.Fatal.WithFatal(true).PrintOnError(err)
+	if OSType == RPM && arch == "x64" {
+		return fmt.Sprintf("rh.%s.%s", arch, ext)
+	} else if OSType == Debian && arch == "x64" {
+		return fmt.Sprintf("deb_amd64.%s", ext)
+	}
 	return fmt.Sprintf("%s-%s.%s", os, arch, ext)
 }()

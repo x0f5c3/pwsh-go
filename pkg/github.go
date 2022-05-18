@@ -22,34 +22,42 @@ func GetReleases() (Releases, error) {
 	var res Releases
 	err = json.Unmarshal(resp, &res)
 	if err != nil {
+		pterm.Error.Printf("Failed to unmarshal from json, raw data %s\n", string(resp))
 		return nil, err
 	}
+	pterm.Debug.Printf("Got %d releases", len(res))
 	return res, nil
 }
 
 type ParsedRelease struct {
 	Version *semver.Version
-	SHAFile *Asset
-	Native  *Asset
+	SHAFile Asset
+	Native  Asset
 }
 
 type Downloaded struct {
 	Version *semver.Version
 	SHASum  string
-	Data    []byte
+	Data    *downloader.File
 }
 
 func (p *ParsedRelease) Download() (*Downloaded, error) {
+	pterm.Debug.Printf("Getting the hashes file from %s\n", p.SHAFile.BrowserDownloadUrl)
 	resp, err := Get(p.SHAFile.BrowserDownloadUrl)
 	if err != nil {
 		return nil, err
 	}
-	var SHASum string
+	SHASum := ""
 	scanner := bufio.NewScanner(strings.NewReader(string(resp)))
 	for scanner.Scan() {
 		t := scanner.Text()
-		if strings.Contains(t, FileExt) {
-			SHASum = strings.Split(t, " ")[0]
+		pterm.Debug.Printf("Now checking line: %s\n", t)
+		if strings.Contains(t, FileExt) && !strings.Contains(t, "lts") {
+			pterm.Debug.Printf("Found it\n")
+			tx := strings.Split(t, " ")
+			SHASum = tx[0]
+			pterm.Debug.Printf("Assigning %s to SHASum\n", tx[0])
+			pterm.Debug.Printf("Assigned %s\n", SHASum)
 		}
 	}
 	l := p.Native.Size
@@ -64,7 +72,7 @@ func (p *ParsedRelease) Download() (*Downloaded, error) {
 	return &Downloaded{
 		Version: p.Version,
 		SHASum:  SHASum,
-		Data:    *dl.Data,
+		Data:    dl,
 	}, nil
 }
 
@@ -97,18 +105,26 @@ func (r *Release) Parse() (*ParsedRelease, error) {
 	}
 	res := ParsedRelease{Version: vers}
 	for _, v := range r.Assets {
-		if v.Name == "hashes.sha256" {
-			res.SHAFile = &v
-		} else if strings.Contains(v.Name, FileExt) {
-			res.Native = &v
+		pterm.Debug.Printf("Processing asset named %s\n", v.Name)
+		if strings.Contains(v.Name, "hashes.sha256") {
+			pterm.Debug.Printf("Found hashes %v\n", v)
+			res.SHAFile = v
+			continue
+		} else if !strings.Contains(v.Name, "lts") && strings.Contains(v.Name, FileExt) {
+			res.Native = v
+			continue
 		}
 	}
-	if res.Native == nil {
+	if res.Native.Name == "" {
 		return nil, errors.New("no native asset found")
 	}
-	if res.SHAFile == nil {
+	if res.SHAFile.Name == "" {
+		var foundFiles []string
+		for _, v := range r.Assets {
+			foundFiles = append(foundFiles, v.Name)
+		}
 		pterm.Error.Printf("Can't find hashes.sha256")
-		pterm.Debug.Printf("Data: %v\n", r.Assets)
+		pterm.Debug.Printf("Data: %v\n", foundFiles)
 		return nil, errors.New("no hashes.sha256 found")
 	}
 	return &res, nil

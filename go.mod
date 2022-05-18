@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/coreos/go-semver v0.3.0
+	github.com/go-ini/ini v1.66.4
 	github.com/pterm/pcli v0.4.6
 	github.com/pterm/pterm v0.12.41
 	github.com/spf13/cobra v1.4.0
