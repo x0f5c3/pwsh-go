@@ -2,9 +2,13 @@ package pkg
 
 import (
 	"bufio"
+	"errors"
 	"github.com/go-ini/ini"
 	"github.com/pterm/pterm"
+	"io/fs"
+	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -18,6 +22,12 @@ const (
 )
 
 func ReadOSRelease(configfile string) (LinuxType, error) {
+	if runtime.GOOS != "linux" {
+		return Other, nil
+	}
+	if _, err := os.Stat(configfile); errors.Is(err, fs.ErrNotExist) {
+		return Other, nil
+	}
 	cfg, err := ini.Load(configfile)
 	if err != nil {
 		pterm.Error.WithShowLineNumber(true).PrintOnError(err)

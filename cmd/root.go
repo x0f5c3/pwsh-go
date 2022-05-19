@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"github.com/x0f5c3/pwsh-go/pkg"
+	"io/ioutil"
 	"os"
 	"os/signal"
 
@@ -17,41 +20,40 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following lines if your bare application has an action associated with it:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Your code here
-		//pterm.Debug.Printf("File extension: %s\n", pkg.FileExt)
-		//rels, err := pkg.GetReleases()
-		//if err != nil {
-		//	return err
-		//}
-		//rel, err := pkg.AskForVersion(rels)
-		//if err != nil {
-		//	return err
-		//}
-		//parsed, err := rel.Parse()
-		//if err != nil {
-		//	return err
-		//}
-		//dl, err := parsed.Download()
-		//if err != nil {
-		//	return err
-		//}
-		//err = dl.Data.CompareSha()
-		//if err != nil {
-		//	return err
-		//}
-		//err = dl.Data.Save(fmt.Sprintf("./pwsh.%s", pkg.FileExt))
-		//if err != nil {
-		//	return err
-		//}
-		//pterm.Info.Printf("SHA256: %s\n", dl.SHASum)
-		//pterm.Info.Printf("Version: %s\n", dl.Version)
-		//b, err := ioutil.ReadFile(fmt.Sprintf("./pwsh.%s", pkg.FileExt))
-		//if err != nil {
-		//	return err
-		//}
-		//sum := sha256.Sum256(b)
-		//pterm.Info.Printf("Computed SHA256: %x\n", sum)
-		//return nil
-		return pkg.UnpackDeb()
+		pterm.Debug.Printf("File extension: %s\n", pkg.FileExt)
+		rels, err := pkg.GetReleases()
+		if err != nil {
+			return err
+		}
+		rel, err := pkg.AskForVersion(rels)
+		if err != nil {
+			return err
+		}
+		parsed, err := rel.Parse()
+		if err != nil {
+			return err
+		}
+		dl, err := parsed.Download()
+		if err != nil {
+			return err
+		}
+		err = dl.Data.CompareSha()
+		if err != nil {
+			return err
+		}
+		err = dl.Data.Save(fmt.Sprintf("./pwsh.%s", pkg.FileExt))
+		if err != nil {
+			return err
+		}
+		pterm.Info.Printf("SHA256: %s\n", dl.SHASum)
+		pterm.Info.Printf("Version: %s\n", dl.Version)
+		b, err := ioutil.ReadFile(fmt.Sprintf("./pwsh.%s", pkg.FileExt))
+		if err != nil {
+			return err
+		}
+		sum := sha256.Sum256(b)
+		pterm.Info.Printf("Computed SHA256: %x\n", sum)
+		return nil
 	},
 }
 
