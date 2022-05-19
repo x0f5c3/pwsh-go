@@ -25,15 +25,15 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		rel, err := pkg.AskForVersion(rels)
+		parsed, err := rels.Parse()
 		if err != nil {
 			return err
 		}
-		parsed, err := rel.Parse()
+		rel, err := pkg.AskForVersion(parsed)
 		if err != nil {
 			return err
 		}
-		dl, err := parsed.Download()
+		dl, err := rel.Download()
 		if err != nil {
 			return err
 		}

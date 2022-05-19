@@ -8,11 +8,43 @@ import (
 	"github.com/coreos/go-semver/semver"
 	"github.com/pterm/pterm"
 	"github.com/x0f5c3/manic-go/pkg/downloader"
+	"sort"
 	"strings"
 	"time"
 )
 
-type Releases = []Release
+type Releases []Release
+
+type Parsed []*ParsedRelease
+
+func (p Parsed) Len() int {
+	return len(p)
+}
+
+func (p Parsed) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p Parsed) Less(i, j int) bool {
+	return p[j].Version.LessThan(*p[i].Version)
+}
+
+func Sort(parsed Parsed) {
+	sort.Sort(parsed)
+}
+
+func (r Releases) Parse() (Parsed, error) {
+	var res Parsed
+	for _, v := range r {
+		t, err := v.Parse()
+		if err != nil {
+			pterm.Error.PrintOnError(err)
+		} else {
+			res = append(res, t)
+		}
+	}
+	return res, nil
+}
 
 func GetReleases() (Releases, error) {
 	resp, err := Get("https://api.github.com/repos/PowerShell/PowerShell/releases")
@@ -76,13 +108,14 @@ func (p *ParsedRelease) Download() (*Downloaded, error) {
 	}, nil
 }
 
-func AskForVersion(r Releases) (*Release, error) {
+func AskForVersion(r Parsed) (*ParsedRelease, error) {
+	Sort(r)
 	sel := survey.Select{VimMode: true}
 	var elems []string
-	relsMap := make(map[string]*Release)
+	relsMap := make(map[string]*ParsedRelease)
 	for _, v := range r {
-		relsMap[v.TagName] = &v
-		elems = append(elems, v.TagName)
+		relsMap[v.Version.String()] = v
+		elems = append(elems, v.Version.String())
 	}
 	sel.Options = elems
 	sel.Message = "Select a version"
@@ -95,7 +128,7 @@ func AskForVersion(r Releases) (*Release, error) {
 	//if !ok {
 	//	return nil, errors.New("no release found in map")
 	//}
-	return &v, nil
+	return v, nil
 }
 
 func (r *Release) Parse() (*ParsedRelease, error) {
@@ -118,12 +151,11 @@ func (r *Release) Parse() (*ParsedRelease, error) {
 	if res.Native.Name == "" {
 		return nil, errors.New("no native asset found")
 	}
-	if res.SHAFile.Name == "" {
+	if res.SHAFile.Name == "" || res.SHAFile.BrowserDownloadUrl == "" {
 		var foundFiles []string
 		for _, v := range r.Assets {
 			foundFiles = append(foundFiles, v.Name)
 		}
-		pterm.Error.Printf("Can't find hashes.sha256")
 		pterm.Debug.Printf("Data: %v\n", foundFiles)
 		return nil, errors.New("no hashes.sha256 found")
 	}

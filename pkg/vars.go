@@ -29,7 +29,7 @@ var FileExt = func() string {
 	os, ext, err := func() (string, string, error) {
 		switch runtime.GOOS {
 		case "windows":
-			if runtime.GOARCH != "amd64" || runtime.GOARCH != "386" {
+			if runtime.GOARCH != "amd64" && runtime.GOARCH != "386" {
 				return "win", "zip", nil
 			}
 			return "win", "msi", nil

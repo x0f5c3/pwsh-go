@@ -13,18 +13,17 @@ import (
 	"sync"
 )
 
-type LinuxType int
+type SystemType = int
 
 const (
-	Debian LinuxType = iota
+	Debian SystemType = iota
 	RPM
 	Other
+	MacOS
+	Windows
 )
 
-func ReadOSRelease(configfile string) (LinuxType, error) {
-	if runtime.GOOS != "linux" {
-		return Other, nil
-	}
+func ReadOSRelease(configfile string) (SystemType, error) {
 	if _, err := os.Stat(configfile); errors.Is(err, fs.ErrNotExist) {
 		return Other, nil
 	}
@@ -42,7 +41,13 @@ func ReadOSRelease(configfile string) (LinuxType, error) {
 	return Other, nil
 }
 
-var OSType = func() LinuxType {
+var OSType = func() SystemType {
+	switch runtime.GOOS {
+	case "windows":
+		return Windows
+	case "darwin":
+		return MacOS
+	}
 	res, err := ReadOSRelease("/etc/os-release")
 	pterm.Error.WithFatal(true).WithShowLineNumber(true).PrintOnError(err)
 	return res
