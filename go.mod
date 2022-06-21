@@ -11,7 +11,7 @@ require (
 	github.com/pterm/pcli v0.4.6
 	github.com/pterm/pterm v0.12.41
 	github.com/smira/go-xz v0.0.0-20201019130106-9921ed7a9935
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/x0f5c3/manic-go v0.4.3
 )
 
