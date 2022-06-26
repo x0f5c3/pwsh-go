@@ -15,7 +15,7 @@ import (
 
 type Releases []Release
 
-type Parsed []*ParsedRelease
+type Parsed []*PWSHRelease
 
 func (p Parsed) Len() int {
 	return len(p)
@@ -43,6 +43,7 @@ func (r Releases) Parse() (Parsed, error) {
 			res = append(res, t)
 		}
 	}
+	Sort(res)
 	return res, nil
 }
 
@@ -61,10 +62,10 @@ func GetReleases() (Releases, error) {
 	return res, nil
 }
 
-type ParsedRelease struct {
+type PWSHRelease struct {
 	Version *semver.Version
-	SHAFile Asset
-	Native  Asset
+	SHAFile *Asset
+	Native  *Asset
 }
 
 type Downloaded struct {
@@ -73,7 +74,7 @@ type Downloaded struct {
 	Data    *downloader.File
 }
 
-func (p *ParsedRelease) Download() (*Downloaded, error) {
+func (p *PWSHRelease) Download() (*Downloaded, error) {
 	pterm.Debug.Printf("Getting the hashes file from %s\n", p.SHAFile.BrowserDownloadUrl)
 	resp, err := Get(p.SHAFile.BrowserDownloadUrl)
 	if err != nil {
@@ -108,43 +109,42 @@ func (p *ParsedRelease) Download() (*Downloaded, error) {
 	}, nil
 }
 
-func AskForVersion(r Parsed) (*ParsedRelease, error) {
+func AskForVersion(r Parsed) (*PWSHRelease, error) {
 	Sort(r)
 	sel := survey.Select{VimMode: true}
 	var elems []string
-	relsMap := make(map[string]*ParsedRelease)
+	relsMap := make(map[string]*PWSHRelease)
 	for _, v := range r {
 		relsMap[v.Version.String()] = v
 		elems = append(elems, v.Version.String())
 	}
 	sel.Options = elems
 	sel.Message = "Select a version"
-	answer := 0
+	answer := ""
 	err := survey.AskOne(&sel, &answer)
 	if err != nil {
 		return nil, err
 	}
-	v := r[answer]
-	//if !ok {
-	//	return nil, errors.New("no release found in map")
-	//}
-	return v, nil
+	if v, ok := relsMap[answer]; ok {
+		return v, nil
+	}
+	return nil, errors.New("no release found in map")
 }
 
-func (r *Release) Parse() (*ParsedRelease, error) {
+func (r *Release) Parse() (*PWSHRelease, error) {
 	vers, err := semver.NewVersion(strings.Replace(r.TagName, "v", "", -1))
 	if err != nil {
 		return nil, err
 	}
-	res := ParsedRelease{Version: vers}
+	res := PWSHRelease{Version: vers}
 	for _, v := range r.Assets {
 		pterm.Debug.Printf("Processing asset named %s\n", v.Name)
 		if strings.Contains(v.Name, "hashes.sha256") {
 			pterm.Debug.Printf("Found hashes %v\n", v)
-			res.SHAFile = v
+			res.SHAFile = &v
 			continue
 		} else if !strings.Contains(v.Name, "lts") && strings.Contains(v.Name, FileExt) {
-			res.Native = v
+			res.Native = &v
 			continue
 		}
 	}

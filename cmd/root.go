@@ -17,7 +17,6 @@ var rootCmd = &cobra.Command{
 	Use:     "pwsh-go",
 	Short:   "pwsh-go is a tool to update your powershell version automatically",
 	Version: "v0.0.4", // <---VERSION---> Updating this version, will also create a new GitHub release.
-	// Uncomment the following lines if your bare application has an action associated with it:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Your code here
 		pterm.Debug.Printf("File extension: %s\n", pkg.FileExt)
@@ -86,12 +85,15 @@ func handleUpdate() {
 	}
 }
 
+var interactive bool
+
 func init() {
 	// Adds global flags for PTerm settings.
 	// Fill the empty strings with the shorthand variant (if you like to have one).
 	rootCmd.PersistentFlags().BoolVarP(&pterm.PrintDebugMessages, "debug", "", false, "enable debug messages")
-	//rootCmd.PersistentFlags().BoolVarP(&pterm.RawOutput, "raw", "", false, "print unstyled raw output (set it if output is written to a file)")
+	rootCmd.PersistentFlags().BoolVarP(&pterm.RawOutput, "raw", "", false, "print unstyled raw output (set it if output is written to a file)")
 	rootCmd.PersistentFlags().BoolVarP(&pcli.DisableUpdateChecking, "disable-update-checks", "", false, "disables update checks")
+	rootCmd.PersistentFlags().BoolVarP(&interactive, "interactive", "i", false, "Choose the PowerShell version interactively")
 
 	// Use https://github.com/pterm/pcli to style the output of cobra.
 	err := pcli.SetRepo("x0f5c3/pwsh-go")

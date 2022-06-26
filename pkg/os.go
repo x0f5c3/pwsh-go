@@ -3,6 +3,7 @@ package pkg
 import (
 	"bufio"
 	"errors"
+	"github.com/coreos/go-semver/semver"
 	"github.com/go-ini/ini"
 	"github.com/pterm/pterm"
 	"io/fs"
@@ -103,4 +104,18 @@ func RunInstaller(path string) (string, string, error) {
 	}
 	wg.Wait()
 	return stdOutString, stdErrString, nil
+}
+
+func GetLocalVersion() (*semver.Version, error) {
+	_, err := exec.LookPath("pwsh")
+	if err != nil {
+		return nil, errors.New("PowerShell is not installed or not in PATH")
+	}
+	cmd := exec.Command("pwsh", "-v")
+	b, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+	up := strings.Replace(string(b), "PowerShell ", "v", -1)
+	return semver.NewVersion(up)
 }
