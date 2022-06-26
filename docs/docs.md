@@ -10,12 +10,23 @@ pwsh-go
 |----|-----|
 |`--debug`|enable debug messages|
 |`--disable-update-checks`|disables update checks|
+|`-i, --interactive`|Choose the PowerShell version interactively|
+|`--raw`|print unstyled raw output (set it if output is written to a file)|
 
 ## Commands
 |Command|Usage|
 |-------|-----|
+|`pwsh-go check`|Check if there's an update for your version|
 |`pwsh-go completion`|Generate the autocompletion script for the specified shell|
 |`pwsh-go help`|Help about any command|
+|`pwsh-go update`|A brief description of your command|
+# ... check
+`pwsh-go check`
+
+## Usage
+> Check if there's an update for your version
+
+pwsh-go check
 # ... completion
 `pwsh-go completion`
 
@@ -182,7 +193,25 @@ pwsh-go help [command]
 Help provides help for any command in the application.
 Simply type pwsh-go help [path to command] for full details.
 ```
+# ... update
+`pwsh-go update`
+
+## Usage
+> A brief description of your command
+
+pwsh-go update
+
+## Description
+
+```
+A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+```
 
 
 ---
-> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on 19 May 2022**
+> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on 26 June 2022**
