@@ -71,6 +71,7 @@ func Execute() {
 
 	// Execute cobra
 	if err := rootCmd.Execute(); err != nil {
+		pterm.Error.PrintOnError(err)
 		handleUpdate()
 	}
 

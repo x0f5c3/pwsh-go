@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/coreos/go-semver/semver"
 	"github.com/pterm/pterm"
@@ -38,7 +39,7 @@ func (r Releases) Parse() (Parsed, error) {
 	for _, v := range r {
 		t, err := v.Parse()
 		if err != nil {
-			pterm.Error.PrintOnError(err)
+			pterm.Debug.PrintOnError(err)
 		} else {
 			res = append(res, t)
 		}
@@ -148,16 +149,16 @@ func (r *Release) Parse() (*PWSHRelease, error) {
 			continue
 		}
 	}
-	if res.Native.Name == "" {
+	if res.Native == nil || res.Native.Name == "" {
 		return nil, errors.New("no native asset found")
 	}
-	if res.SHAFile.Name == "" || res.SHAFile.BrowserDownloadUrl == "" {
+	if res.SHAFile == nil || res.SHAFile.Name == "" || res.SHAFile.BrowserDownloadUrl == "" {
 		var foundFiles []string
 		for _, v := range r.Assets {
 			foundFiles = append(foundFiles, v.Name)
 		}
 		pterm.Debug.Printf("Data: %v\n", foundFiles)
-		return nil, errors.New("no hashes.sha256 found")
+		return nil, fmt.Errorf("no hashes.sha256 found for tag %s", res.Version)
 	}
 	return &res, nil
 }
