@@ -11,7 +11,7 @@ require (
 	github.com/pterm/pcli v0.4.6
 	github.com/pterm/pterm v0.12.41
 	github.com/smira/go-xz v0.0.0-20201019130106-9921ed7a9935
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.6.1
 	github.com/x0f5c3/manic-go v0.4.3
 )
 
@@ -20,7 +20,7 @@ require (
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gookit/color v1.5.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
