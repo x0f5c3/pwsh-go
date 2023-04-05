@@ -214,4 +214,4 @@ to quickly create a Cobra application.
 
 
 ---
-> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on 26 June 2022**
+> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on 05 April 2023**
