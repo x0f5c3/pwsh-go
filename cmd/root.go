@@ -3,10 +3,10 @@ package cmd
 import (
 	"crypto/sha256"
 	"fmt"
-	"github.com/x0f5c3/pwsh-go/pkg"
-	"io/ioutil"
 	"os"
 	"os/signal"
+
+	"github.com/x0f5c3/pwsh-go/pkg"
 
 	"github.com/pterm/pcli"
 	"github.com/pterm/pterm"
@@ -46,7 +46,7 @@ var rootCmd = &cobra.Command{
 		}
 		pterm.Info.Printf("SHA256: %s\n", dl.SHASum)
 		pterm.Info.Printf("Version: %s\n", dl.Version)
-		b, err := ioutil.ReadFile(fmt.Sprintf("./pwsh.%s", pkg.FileExt))
+		b, err := os.ReadFile(fmt.Sprintf("./pwsh.%s", pkg.FileExt))
 		if err != nil {
 			return err
 		}
